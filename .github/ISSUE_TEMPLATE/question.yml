@@ -1,0 +1,11 @@
+name: Question / 使用提问
+description: 询问安装、模型、批量处理或来源核对
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 你的问题
+      description: 说明当前步骤、已尝试的方法和环境。不要公开私人视频、凭据或完整本机路径。
+    validations:
+      required: true
