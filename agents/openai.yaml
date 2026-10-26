@@ -1,0 +1,4 @@
+interface:
+  display_name: "视频转菜谱"
+  short_description: "本地批量转写烹饪视频，按来源断点生成并严格核对独立菜谱"
+  default_prompt: "使用 $video-to-recipe 扫描本地视频与现有进度，每批处理3-4个来源，生成独立中文菜谱并完成一对一审计。"
