@@ -1,0 +1,24 @@
+name: Bug / 运行问题
+description: 报告转写、抽帧或来源映射中的可复现问题
+labels: [bug]
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境
+      description: 操作系统、Python、FFmpeg、模型与设备（去掉私有路径）
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤和报错
+      description: 贴出脱敏命令与实际结果，不要附私有视频或凭据。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
