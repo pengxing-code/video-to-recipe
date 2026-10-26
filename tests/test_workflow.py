@@ -35,8 +35,11 @@ class WorkflowTests(unittest.TestCase):
             directory.mkdir(parents=True)
         self.output = self.root / "progress.csv"
 
-    def run_script(self, script, *args):
-        return subprocess.run([sys.executable, str(ROOT / "scripts" / script), *map(str, args)], capture_output=True, encoding="utf-8", errors="replace", timeout=15)
+    def run_script(self, script, *args, legacy_encoding=False):
+        environment = os.environ.copy()
+        if legacy_encoding:
+            environment.update(PYTHONIOENCODING="cp1252", PYTHONUTF8="0")
+        return subprocess.run([sys.executable, str(ROOT / "scripts" / script), *map(str, args)], capture_output=True, encoding="utf-8", errors="replace", timeout=15, env=environment)
 
     def audit(self, *extra):
         result = self.run_script("reconcile_progress.py", self.videos, "--transcripts", self.transcripts, "--recipes", self.recipes, "--output", self.output, *extra)
@@ -145,6 +148,26 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("negative", result.stderr)
         self.assertFalse(target.exists())
+
+    def test_chinese_paths_work_with_legacy_windows_output_encoding(self):
+        video = self.source("中文菜名", recipe=False)
+        result = self.run_script("reconcile_progress.py", self.videos, "--transcripts", self.transcripts, "--recipes", self.recipes, "--output", self.output, legacy_encoding=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("中文菜名", result.stdout)
+
+        output = self.root / "prepared"
+        (output / "transcripts").mkdir(parents=True)
+        (output / "metadata").mkdir()
+        (output / "transcripts" / f"{video.stem}.transcript.txt").write_text("已有转写", encoding="utf-8")
+        (output / "metadata" / f"{video.stem}.json").write_text("{}", encoding="utf-8")
+        result = self.run_script("prepare_videos.py", video, "--output-dir", output, "--skip-frames", "--heartbeat-seconds", "0", legacy_encoding=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("中文菜名.mp4", result.stdout)
+
+        result = self.run_script("extract_evidence_frames.py", self.root / "不存在的视频.mp4", "--output-dir", self.root / "evidence", "--times", "0", legacy_encoding=True)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("不存在的视频.mp4", result.stderr)
+        self.assertNotIn("UnicodeEncodeError", result.stderr)
 
 
 if __name__ == "__main__":

@@ -216,6 +216,10 @@ def existing_record_map(manifest_path: Path) -> dict[str, dict]:
 
 
 def main() -> int:
+    # Redirected Windows output may otherwise use a codec without Chinese glyphs.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     args = parse_args()
     if args.frame_interval <= 0:
         print("--frame-interval must be greater than zero.", file=sys.stderr)

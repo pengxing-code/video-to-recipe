@@ -60,6 +60,10 @@ def output_flag(overwrite: bool) -> str:
 
 
 def main() -> int:
+    # Keep Chinese source paths readable in Windows consoles and captured logs.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     args = parse_args()
     video = Path(args.video).expanduser().resolve()
     output_dir = Path(args.output_dir).expanduser().resolve()

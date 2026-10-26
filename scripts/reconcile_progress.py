@@ -137,6 +137,10 @@ def status_for(transcripts: list[Path], recipes: list[Path], empty_recipes: set[
 
 
 def main() -> int:
+    # Keep Chinese source IDs readable even with legacy Windows output encodings.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     args = parse_args()
     video_input = Path(args.videos).expanduser()
     transcript_dir = Path(args.transcripts).expanduser().resolve()
